@@ -39,7 +39,6 @@ module.exports = function(RED) {
             }
             if (micInputStream) {
                 micInputStream.removeAllListeners()
-                micInputStream.end()
                 micInputStream = null
             }
         }
