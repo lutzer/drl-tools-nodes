@@ -6,6 +6,9 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,config)
         var node = this;
 
+        var micInstance = null
+        var micInputStream = null
+
         const micConfig = {
             rate: config.sampleRate,
             channels: config.channels,
@@ -15,30 +18,44 @@ module.exports = function(RED) {
             endian: config.endian,
             bitwidth: _.toNumber(config.bitwidth)
         }
-        
-        const micInstance = mic(micConfig)
 
-        const micInputStream = micInstance.getAudioStream();
-        micInputStream.on('data', (chunk) => {
-            node.send([null, {topic: 'data', payload: chunk, config: micConfig }])
-        })
-        micInputStream.on('pauseComplete', () => {
-            node.send([{topic: 'stop', config: micConfig}, null])
-        })
+        function prepareMicrophone() {
+            micInstance = mic(micConfig)
+    
+            micInputStream = micInstance.getAudioStream();
+            micInputStream.on('data', (chunk) => {
+                node.send([null, {topic: 'data', payload: chunk, config: micConfig }])
+            })
+            micInputStream.on('stopComplete', () => {
+                node.send([{topic: 'stop', config: micConfig}, null])
+                clearMicrophone()
+            })
+        }
 
-        var started = false
+        function clearMicrophone() {
+            if (micInstance) {
+                micInstance.stop()
+                micInstance = null
+            }
+            if (micInputStream) {
+                micInputStream.removeAllListeners()
+                micInputStream.end()
+                micInputStream = null
+            }
+        }
+
         node.on('input', function(msg) {
             if (msg.topic == 'start') {
+                prepareMicrophone()
                 node.send([{topic: 'start', config: micConfig}, null])
-                if (!started) {
-                    micInstance.start()
-                    started = true
-                } else {
-                    micInstance.resume()
-                }
+                micInstance.start()
             } else if (msg.topic == 'stop') {
-                micInstance.pause()
+                micInstance.stop()
             }
+        })
+
+        node.on('close', function() {
+            clearMicrophone()
         })
     }
     RED.nodes.registerType("tools-mic", ToolsMicNode)
