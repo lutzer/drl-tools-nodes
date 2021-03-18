@@ -1,0 +1,42 @@
+<script type="text/javascript">
+    RED.nodes.registerType('tools-mic',{
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value:"" },
+            sampleRate: { value: 8000 },
+            channels: { value: 1 },
+            device: { value: "" }
+        },
+        inputs:1,
+        outputs:2,
+        outputLabels: ["control", "data"],
+        icon: "font-awesome/fa-microphone",
+        label: function() {
+            return this.name || "tools-mic";
+        }
+    })
+</script>
+
+<script type="text/html" data-template-name="tools-mic">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sampleRate">Sample Rate</label>
+        <input type="number" min=0 max=44100 id="node-input-sampleRate" placeholder="Sample rate in Hz">
+    </div>
+    <div class="form-row">
+        <label for="node-input-channels">Channels</label>
+        <input type="number" min=1 max=2 id="node-input-channels" placeholder="Number of channels">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device">Device</label>
+        <input type="number" min=1 max=2 id="node-input-device" placeholder="Device name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="tools-mic">
+    <p>Node returns an audio stream from the microphone</p>
+</script>
