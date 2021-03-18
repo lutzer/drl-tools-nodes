@@ -6,7 +6,9 @@
             name: { value:"" },
             sampleRate: { value: 8000 },
             channels: { value: 1 },
-            device: { value: "" }
+            device: { value: "" },
+            endian: { value: "little" },
+            bitwidth: { value: "16" }
         },
         inputs:1,
         outputs:2,
@@ -30,6 +32,21 @@
     <div class="form-row">
         <label for="node-input-channels">Channels</label>
         <input type="number" min=1 max=2 id="node-input-channels" placeholder="Number of channels">
+    </div>
+    <div class="form-row">
+        <label for="node-input-endian"><i class="icon-user"></i> Endian</label>
+        <select type="text" id="node-input-endian" style="width: 320px">
+            <option value="little">Little</option>
+            <option value="big">Big</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-bitwidth"><i class="icon-user"></i> Bitwidth</label>
+        <select type="text" id="node-input-bitwidth" style="width: 320px">
+            <option value="8">8</option>
+            <option value="16">16</option>
+            <option value="24">24</option>
+        </select>
     </div>
     <div class="form-row">
         <label for="node-input-device">Device</label>

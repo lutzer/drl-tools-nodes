@@ -6,27 +6,30 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,config)
         var node = this;
 
-        const micInstance = mic({
+        const micConfig = {
             rate: config.sampleRate,
             channels: config.channels,
             debug: false,
             exitOnSilence: 0,
-            device: !_.isEmpty(config.device) ? config.device : undefined
-        })
+            device: !_.isEmpty(config.device) ? config.device : undefined,
+            endian: config.endian,
+            bitwidth: _.toNumber(config.bitwidth)
+        }
+        
+        const micInstance = mic(micConfig)
 
         const micInputStream = micInstance.getAudioStream();
         micInputStream.on('data', (chunk) => {
-            node.send([null, {topic: 'data', payload: chunk }])
+            node.send([null, {topic: 'data', payload: chunk, config: micConfig }])
         })
         micInputStream.on('pauseComplete', () => {
-            node.send([{topic: 'stop'}, null])
+            node.send([{topic: 'stop', config: micConfig}, null])
         })
-
 
         var started = false
         node.on('input', function(msg) {
             if (msg.topic == 'start') {
-                node.send([{topic: 'start', config: config}, null])
+                node.send([{topic: 'start', config: micConfig}, null])
                 if (!started) {
                     micInstance.start()
                     started = true
