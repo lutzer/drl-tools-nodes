@@ -8,6 +8,7 @@ module.exports = function(RED) {
 
         var micInstance = null
         var micInputStream = null
+        var recording = false
 
         const micConfig = {
             rate: config.sampleRate,
@@ -27,7 +28,9 @@ module.exports = function(RED) {
                 node.send([null, {topic: 'data', payload: chunk, config: micConfig }])
             })
             micInputStream.on('stopComplete', () => {
+                recording = false
                 node.send([{topic: 'stop', config: micConfig}, null])
+                node.status({})
                 clearMicrophone()
             })
         }
@@ -44,12 +47,21 @@ module.exports = function(RED) {
         }
 
         node.on('input', function(msg) {
-            if (msg.topic == 'start') {
+            if (msg.payload == 'start') {
+                if (recording) {
+                    node.error("mic is still recording", msg)
+                    return
+                }
                 prepareMicrophone()
                 node.send([{topic: 'start', config: micConfig}, null])
                 micInstance.start()
-            } else if (msg.topic == 'stop') {
-                micInstance.stop()
+                recording = true
+                node.status({fill:"red",shape:"ring",text:"recording"})
+            } else if (msg.payload == 'stop') {
+                if (micInstance)
+                    micInstance.stop()
+                else
+                    recording == false
             }
         })
 
