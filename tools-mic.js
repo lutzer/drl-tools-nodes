@@ -53,6 +53,12 @@ module.exports = function(RED) {
                     return
                 }
                 prepareMicrophone()
+
+                // handle errors in the mic stream
+                micInputStream.on('error', function(err) {
+                    node.error(err,msg)
+                });
+                
                 node.send([{topic: 'start', config: micConfig}, null])
                 micInstance.start()
                 recording = true
