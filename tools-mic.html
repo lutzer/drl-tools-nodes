@@ -8,7 +8,10 @@
             channels: { value: 1 },
             device: { value: "" },
             endian: { value: "little" },
-            bitwidth: { value: "16" }
+            bitwidth: { value: "16" },
+            save: { value: false },
+            saveFolder: { value: "/home/pi"}
+
         },
         inputs:1,
         outputs:2,
@@ -51,6 +54,15 @@
     <div class="form-row">
         <label for="node-input-device">Device</label>
         <input type="text" id="node-input-device" placeholder="Device name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-save"></i> Save audio</label>
+        <input type="checkbox" id="node-input-save" style="width: auto; margin: 5px;">
+        <label for="node-input-save" style="width: 70%;"> Save audio stream to file</label>
+      </div>
+    <div class="form-row">
+        <label for="node-input-saveFolder">Device</label>
+        <input type="text" id="node-input-saveFolder" placeholder="Folder name">
     </div>
 </script>
 

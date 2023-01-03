@@ -1,5 +1,7 @@
 const mic = require('mic')
 const _ = require('lodash')
+const path = require('path')
+const wav = require('wav')
 
 module.exports = function(RED) {
     function ToolsMicNode(config) {
@@ -9,6 +11,7 @@ module.exports = function(RED) {
         var micInstance = null
         var micInputStream = null
         var recording = false
+        var outputFileStream = null
 
         const micConfig = {
             rate: config.sampleRate,
@@ -20,19 +23,31 @@ module.exports = function(RED) {
             bitwidth: _.toNumber(config.bitwidth)
         }
 
-        function prepareMicrophone() {
+        function prepareMicrophone(filePath) {
             micInstance = mic(micConfig)
     
             micInputStream = micInstance.getAudioStream();
             micInputStream.on('data', (chunk) => {
                 node.send([null, {topic: 'data', payload: chunk, config: micConfig }])
             })
+
+            if (filePath != null) {
+                outputFileStream = new wav.FileWriter(filePath, {
+                    sampleRate: micConfig.rate,
+                    channels: micConfig.channels,
+                    bitwidth: micConfig.bitwidth
+                })
+                micInputStream.pipe(outputFileStream);
+            } 
+
             micInputStream.on('stopComplete', () => {
                 recording = false
                 node.send([{topic: 'stop', config: micConfig}, null])
                 node.status({})
                 clearMicrophone()
             })
+
+            
         }
 
         function clearMicrophone() {
@@ -52,14 +67,17 @@ module.exports = function(RED) {
                     node.error("mic is still recording", msg)
                     return
                 }
-                prepareMicrophone()
+
+                var filePath = config.save ? path.join(config.saveFolder, Date.now() + ".wav") : null
+
+                prepareMicrophone(filePath)
 
                 // handle errors in the mic stream
                 micInputStream.on('error', function(err) {
                     node.error(err,msg)
                 });
                 
-                node.send([{topic: 'start', config: micConfig}, null])
+                node.send([{topic: 'start', config: micConfig, file: filePath}, null])
                 micInstance.start()
                 recording = true
                 node.status({fill:"red",shape:"ring",text:"recording"})

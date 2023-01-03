@@ -1,6 +1,6 @@
 {
   "name": "drl-tools-nodes",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,11 +10,12 @@
   "license": "ISC",
   "node-red": {
     "nodes": {
-      "tools-stt": "tools-mic.js"
+      "tools-mic": "tools-mic.js"
     }
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "mic": "^2.1.2"
+    "mic": "^2.1.2",
+    "wav": "^1.0.2"
   }
 }
